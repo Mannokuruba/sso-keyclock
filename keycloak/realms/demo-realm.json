@@ -1,0 +1,134 @@
+{
+  "realm": "demo",
+  "displayName": "Company SSO Demo",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "bruteForceProtected": true,
+  "accessTokenLifespan": 900,
+  "ssoSessionMaxLifespan": 36000,
+
+  "roles": {
+    "realm": [
+      { "name": "hr-manager",   "description": "Access to HR Portal" },
+      { "name": "finance-team", "description": "Access to Payroll App" },
+      { "name": "sales-team",   "description": "Access to CRM System" },
+      { "name": "it-admin",     "description": "Access to ALL apps" },
+      { "name": "employee",     "description": "Access to Docs Portal (all staff)" }
+    ]
+  },
+
+  "users": [
+    {
+      "username": "alice",
+      "email": "alice@company.com",
+      "firstName": "Alice",
+      "lastName": "Kumar",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "pass123", "temporary": false }],
+      "realmRoles": ["hr-manager", "employee"]
+    },
+    {
+      "username": "bob",
+      "email": "bob@company.com",
+      "firstName": "Bob",
+      "lastName": "Smith",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "pass123", "temporary": false }],
+      "realmRoles": ["finance-team", "employee"]
+    },
+    {
+      "username": "carol",
+      "email": "carol@company.com",
+      "firstName": "Carol",
+      "lastName": "Jones",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "pass123", "temporary": false }],
+      "realmRoles": ["sales-team", "employee"]
+    },
+    {
+      "username": "dave",
+      "email": "dave@company.com",
+      "firstName": "Dave",
+      "lastName": "Patel",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "pass123", "temporary": false }],
+      "realmRoles": ["it-admin", "employee"]
+    },
+    {
+      "username": "eve",
+      "email": "eve@company.com",
+      "firstName": "Eve",
+      "lastName": "Chen",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "pass123", "temporary": false }],
+      "realmRoles": ["employee"]
+    }
+  ],
+
+  "clients": [
+    {
+      "clientId": "portal",
+      "name": "Company Portal",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["http://localhost:3000/*"],
+      "webOrigins": ["http://localhost:3000"],
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "hr-portal",
+      "name": "HR Portal",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["http://localhost:3001/*"],
+      "webOrigins": ["http://localhost:3001"],
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "payroll-app",
+      "name": "Payroll App",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["http://localhost:3002/*"],
+      "webOrigins": ["http://localhost:3002"],
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "crm-system",
+      "name": "CRM System",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["http://localhost:3003/*"],
+      "webOrigins": ["http://localhost:3003"],
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "docs-portal",
+      "name": "Docs Portal",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["http://localhost:3004/*"],
+      "webOrigins": ["http://localhost:3004"],
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "admin-dashboard",
+      "name": "Admin Dashboard",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["http://localhost:3005/*"],
+      "webOrigins": ["http://localhost:3005"],
+      "protocol": "openid-connect"
+    }
+  ]
+}

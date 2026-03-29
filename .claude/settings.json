@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker-compose down:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker rm:*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(list\\(d.keys\\(\\)\\)\\)\")",
+      "Bash(docker-compose stop:*)",
+      "Bash(docker-compose rm:*)",
+      "Bash(curl -s -X POST http://localhost:8080/realms/master/protocol/openid-connect/token -d \"client_id=admin-cli&grant_type=password&username=admin&password=admin123\")",
+      "Bash(python3 -c \"import sys,json; t=json.load\\(sys.stdin\\); print\\(t.get\\(''''access_token'''',''''ERROR''''\\)[:30]\\)\")"
+    ]
+  }
+}

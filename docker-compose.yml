@@ -1,0 +1,167 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: sso-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sso-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: sso-keycloak
+    command: start-dev --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${DB_PASSWORD}
+      KEYCLOAK_ADMIN: ${ADMIN_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      KC_HOSTNAME: localhost
+      KC_HTTP_PORT: 8080
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak/realms:/opt/keycloak/data/import
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sso-net
+
+  # ── Central Portal (entry point) ─────────────────────────────────────────────
+
+  portal:
+    build: ./apps/portal
+    container_name: sso-portal
+    environment:
+      KEYCLOAK_URL: "http://keycloak:8080"
+      KEYCLOAK_EXTERNAL_URL: "http://localhost:8080"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - keycloak
+    networks:
+      - sso-net
+
+  # ── 5 Company Apps ───────────────────────────────────────────────────────────
+
+  hr-portal:
+    build: ./apps/app-template
+    container_name: sso-hr-portal
+    environment:
+      APP_NAME: "HR Portal"
+      APP_COLOR: "#e74c3c"
+      APP_DESC: "Manage employee records, hiring pipeline, and HR policies."
+      REQUIRED_ROLES: "hr-manager"
+      PORT: "3001"
+      CLIENT_ID: "hr-portal"
+      KEYCLOAK_URL: "http://keycloak:8080"
+      KEYCLOAK_EXTERNAL_URL: "http://localhost:8080"
+      APP_URL: "http://localhost:3001"
+    ports:
+      - "3001:3001"
+    depends_on:
+      - keycloak
+    networks:
+      - sso-net
+
+  payroll-app:
+    build: ./apps/app-template
+    container_name: sso-payroll-app
+    environment:
+      APP_NAME: "Payroll App"
+      APP_COLOR: "#f39c12"
+      APP_DESC: "Process salaries, manage invoices, and view financial reports."
+      REQUIRED_ROLES: "finance-team"
+      PORT: "3002"
+      CLIENT_ID: "payroll-app"
+      KEYCLOAK_URL: "http://keycloak:8080"
+      KEYCLOAK_EXTERNAL_URL: "http://localhost:8080"
+      APP_URL: "http://localhost:3002"
+    ports:
+      - "3002:3002"
+    depends_on:
+      - keycloak
+    networks:
+      - sso-net
+
+  crm-system:
+    build: ./apps/app-template
+    container_name: sso-crm-system
+    environment:
+      APP_NAME: "CRM System"
+      APP_COLOR: "#27ae60"
+      APP_DESC: "Track customers, manage deals, and view the sales pipeline."
+      REQUIRED_ROLES: "sales-team"
+      PORT: "3003"
+      CLIENT_ID: "crm-system"
+      KEYCLOAK_URL: "http://keycloak:8080"
+      KEYCLOAK_EXTERNAL_URL: "http://localhost:8080"
+      APP_URL: "http://localhost:3003"
+    ports:
+      - "3003:3003"
+    depends_on:
+      - keycloak
+    networks:
+      - sso-net
+
+  docs-portal:
+    build: ./apps/app-template
+    container_name: sso-docs-portal
+    environment:
+      APP_NAME: "Docs Portal"
+      APP_COLOR: "#3498db"
+      APP_DESC: "Access company wikis, policies, and shared documents. Open to all employees."
+      REQUIRED_ROLES: ""
+      PORT: "3004"
+      CLIENT_ID: "docs-portal"
+      KEYCLOAK_URL: "http://keycloak:8080"
+      KEYCLOAK_EXTERNAL_URL: "http://localhost:8080"
+      APP_URL: "http://localhost:3004"
+    ports:
+      - "3004:3004"
+    depends_on:
+      - keycloak
+    networks:
+      - sso-net
+
+  admin-dashboard:
+    build: ./apps/app-template
+    container_name: sso-admin-dashboard
+    environment:
+      APP_NAME: "Admin Dashboard"
+      APP_COLOR: "#9b59b6"
+      APP_DESC: "System configuration, user management, and infrastructure monitoring."
+      REQUIRED_ROLES: "it-admin"
+      PORT: "3005"
+      CLIENT_ID: "admin-dashboard"
+      KEYCLOAK_URL: "http://keycloak:8080"
+      KEYCLOAK_EXTERNAL_URL: "http://localhost:8080"
+      APP_URL: "http://localhost:3005"
+    ports:
+      - "3005:3005"
+    depends_on:
+      - keycloak
+    networks:
+      - sso-net
+
+networks:
+  sso-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
