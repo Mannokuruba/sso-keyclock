@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/manojkumar/sso-local/**)",
+      "Bash(npm list:*)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(python3 -c \"import pptx; print\\('pptx version:', pptx.__version__\\)\")",
+      "Bash(python3 -c \"import pptx; print\\('ready'\\)\")",
+      "Bash(python3 /tmp/generate_ppt.py)"
+    ],
+    "additionalDirectories": [
+      "/Users/manojkumar/sso-local/apps/insurance-portal/mermaid"
+    ]
+  }
+}
