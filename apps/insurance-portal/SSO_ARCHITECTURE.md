@@ -470,3 +470,260 @@ flowchart LR
     style GIVE fill:#dbeafe,stroke:#1a56db
     style NOTOWN fill:#fee2e2,stroke:#dc2626
 ```
+
+## 12. What Is Auth0 and What Does It Do
+
+```mermaid
+flowchart TD
+    subgraph WHAT ["What Auth0 Is"]
+        W1[Auth0 is an Identity as a Service\nIDaaS platform]
+        W2[It is a cloud-hosted service that\nhandles everything about login\nso your team does not have to build it]
+        W3[Used by 18000 plus companies\nworldwide including banks\ninsurance firms and hospitals]
+        W1 --> W2 --> W3
+    end
+
+    subgraph DOES ["What Auth0 Does for InsureConnect"]
+        D1[Hosts the Login Page\nYour app never handles passwords]
+        D2[Verifies Email and Password\nSecurely using bcrypt hashing]
+        D3[Challenges MFA\nOTP via Google Authenticator]
+        D4[Issues JWT Tokens\nSigned with RS256 private key]
+        D5[Manages User Accounts\n40K customer identities stored]
+        D6[Enforces MFA Policy\nAlways-on per NAIC compliance]
+        D7[Detects Attacks\nBrute force and impossible travel]
+        D8[Streams Audit Logs\nEvery login event recorded]
+    end
+
+    subgraph WITHOUT ["Without Auth0 — What Your Team Must Build"]
+        NB1[Secure login page UI]
+        NB2[Password hashing and storage]
+        NB3[MFA OTP generation and validation]
+        NB4[JWT token signing and rotation]
+        NB5[Brute force protection]
+        NB6[Session management]
+        NB7[Forgot password flow]
+        NB8[Anomaly detection engine]
+        NB9[Compliance audit logging]
+        NB10[Security patching forever]
+        COST[Estimated 12 to 18 months\nof engineering work\nplus ongoing maintenance]
+        NB1 & NB2 & NB3 & NB4 & NB5 --> COST
+        NB6 & NB7 & NB8 & NB9 & NB10 --> COST
+    end
+
+    subgraph WITH ["With Auth0 — What Your Team Does Instead"]
+        WB1[Configure settings\nin Auth0 dashboard]
+        WB2[Write 3 Auth0 Actions\nin JavaScript]
+        WB3[Build SSO Management API\nfor user provisioning]
+        WB4[Ship features for\ninsurance customers]
+        TIME[Ready in 4 to 6 weeks\nnot 18 months]
+        WB1 & WB2 & WB3 --> WB4 --> TIME
+    end
+
+    WHAT --> DOES
+    WITHOUT --> WITH
+
+    style WHAT fill:#eff6ff,stroke:#1a56db
+    style DOES fill:#dcfce7,stroke:#16a34a
+    style WITHOUT fill:#fee2e2,stroke:#dc2626
+    style WITH fill:#dcfce7,stroke:#16a34a
+    style COST fill:#dc2626,color:#fff
+    style TIME fill:#16a34a,color:#fff
+```
+
+## 13. Why Auth0 Over Other Options
+
+```mermaid
+flowchart LR
+    subgraph OPTIONS ["Identity Provider Options Evaluated"]
+        OP1[Build In-House\nCustom Auth System]
+        OP2[AWS Cognito\nAmazon Identity]
+        OP3[Keycloak\nOpen Source]
+        OP4[Auth0 Professional\nSelected]
+        OP5[Microsoft Entra ID\nAzure AD B2C]
+    end
+
+    subgraph EVAL ["Evaluation Against Requirements"]
+        subgraph REQ ["Requirements"]
+            R1[40K MAU B2C]
+            R2[MFA Always-On]
+            R3[Custom Login Branding]
+            R4[RBAC Roles]
+            R5[Audit Logging]
+            R6[Quick Deployment]
+            R7[Vendor Neutral\nNo lock-in to one cloud]
+        end
+    end
+
+    subgraph RESULT ["Evaluation Result"]
+        RES1[Build In-House\n❌ 12 to 18 months build time\n❌ Security risk\n❌ Ongoing maintenance]
+        RES2[AWS Cognito\n⚠️ Limited MFA options\n⚠️ Locked to AWS\n⚠️ Weak custom branding]
+        RES3[Keycloak\n⚠️ Free but needs team\nto host and operate\n⚠️ High ops overhead]
+        RES4[Auth0 Professional\n✅ All requirements met\n✅ 6 week deployment\n✅ Cloud agnostic\n✅ $240/mo for 40K MAU]
+        RES5[Microsoft Entra B2C\n⚠️ Complex pricing\n⚠️ Azure lock-in\n⚠️ Harder custom flows]
+    end
+
+    OP1 --> RES1
+    OP2 --> RES2
+    OP3 --> RES3
+    OP4 --> RES4
+    OP5 --> RES5
+
+    style RES4 fill:#16a34a,color:#fff
+    style RES1 fill:#dc2626,color:#fff
+    style RES2 fill:#ca8a04,color:#fff
+    style RES3 fill:#ca8a04,color:#fff
+    style RES5 fill:#ca8a04,color:#fff
+```
+
+## 14. Why Each Azure Service — Purpose and Justification
+
+```mermaid
+flowchart TD
+    subgraph TM_WHY ["Azure Traffic Manager — $6/mo"]
+        TM1[What it does\nRoutes DNS traffic with health checks]
+        TM2[Why we need it\nIf Auth0 is unreachable in one region\nit auto-routes to the next healthy endpoint\nin under 30 seconds]
+        TM3[Without it\nCustomers get connection errors\nuntil someone manually changes DNS\nwhich can take hours]
+        TM1 --> TM2 --> TM3
+    end
+
+    subgraph FD_WHY ["Azure Front Door Standard — $35/mo"]
+        FD1[What it does\nGlobal CDN with built-in WAF\nSSL termination and DDoS at edge]
+        FD2[Why we need it\nProtects login endpoint from\nOWASP attacks SQL injection XSS\nbefore requests reach Auth0]
+        FD3[Why not Azure DDoS Standard\nFront Door WAF covers this\nDDoS Standard costs $95/mo extra\nfor protection already included here]
+        FD1 --> FD2 --> FD3
+    end
+
+    subgraph KV_WHY ["Azure Key Vault — $5/mo"]
+        KV1[What it does\nSecure encrypted storage\nfor secrets and certificates]
+        KV2[Why we need it\nAuth0 Client ID Client Secret\nand signing keys must never\nbe stored in code or env files]
+        KV3[Risk without it\nIf secrets are in code\none git leak exposes\nall 40K customer accounts]
+        KV1 --> KV2 --> KV3
+    end
+
+    subgraph REDIS_WHY ["Azure Redis Cache C0 — $16/mo"]
+        RE1[What it does\nIn-memory key-value cache]
+        RE2[Why we need it\nCaches Auth0 JWKS public keys\nso every API token validation\ndoes not call Auth0 directly]
+        RE3[Without it\nEvery API request hits Auth0\nAt 40K MAU this causes\nrate limiting and latency spikes]
+        RE1 --> RE2 --> RE3
+    end
+
+    subgraph APP_WHY ["Azure App Service B1 — $14/mo"]
+        AP1[What it does\nHosts the SSO Management API\nNode.js service we build]
+        AP2[Why we need it\nOther teams need to create users\nassign roles and reset MFA\nwithout direct Auth0 access]
+        AP3[Why B1 not Standard\nSSO Management API is internal\nlow traffic under 1000 calls per day\nB1 handles this comfortably]
+        AP1 --> AP2 --> AP3
+    end
+
+    subgraph LA_WHY ["Azure Log Analytics — $0-5/mo"]
+        LA1[What it does\nCollects and queries\nAuth0 tenant logs]
+        LA2[Why we need it\nNAIC insurance compliance requires\n90 day audit trail of all logins\nMFA events and role changes]
+        LA3[Why almost free\nFirst 5GB per day is free\nAuth0 logs for 40K MAU\nare well under this limit]
+        LA1 --> LA2 --> LA3
+    end
+
+    subgraph DNS_WHY ["Azure DNS — $1/mo"]
+        DN1[What it does\nManages login.company.com\ncustom domain routing]
+        DN2[Why we need it\nCustomers must see your brand\nnot auth0.com in the login URL\nBuilds trust for insurance customers]
+        DN3[Future benefit\nIf we ever switch from Auth0\ncustomers never notice\nthe domain stays the same]
+        DN1 --> DN2 --> DN3
+    end
+
+    style TM_WHY fill:#fef3c7,stroke:#ca8a04
+    style FD_WHY fill:#fee2e2,stroke:#dc2626
+    style KV_WHY fill:#fff7ed,stroke:#ea580c
+    style REDIS_WHY fill:#ede9fe,stroke:#7c3aed
+    style APP_WHY fill:#dbeafe,stroke:#1a56db
+    style LA_WHY fill:#fdf2f8,stroke:#db2777
+    style DNS_WHY fill:#dcfce7,stroke:#16a34a
+```
+
+## 15. Why This Architecture Was Selected
+
+```mermaid
+flowchart TD
+    subgraph PROBLEM ["Business Problem"]
+        BP1[40K insurance customers\nneed secure login]
+        BP2[MFA required\nby NAIC compliance]
+        BP3[100% uptime needed\ncustomer facing portal]
+        BP4[Budget must be\njustified to stakeholders]
+        BP5[Small SSO team\nfast delivery needed]
+    end
+
+    subgraph CONSTRAINTS ["Design Constraints"]
+        C1[Cannot afford\n18 months build time]
+        C2[Cannot risk\nsecurity breach]
+        C3[Cannot have\nvendor lock-in]
+        C4[Must scale from\n40K to 500K MAU]
+        C5[Must work on\nany infrastructure]
+    end
+
+    subgraph DECISIONS ["Key Design Decisions Made"]
+        DEC1[Use Auth0 Professional\nnot Enterprise\nSaves $960 to $2260 per month\nCovers 100K MAU headroom]
+        DEC2[Single Auth0 tenant\nnot dual tenant standby\nAuth0 is already multi-AZ\nSaves $1200 plus per month]
+        DEC3[Remove Azure DDoS Standard\nFront Door WAF covers it\nSaves $95 per month]
+        DEC4[Downsize App Service\nto B1 Basic\nInternal API is low traffic\nSaves $36 per month]
+        DEC5[Use Log Analytics free tier\nFirst 5GB per day free\nAuth0 logs fit in free tier\nSaves $20 per month]
+        DEC6[Azure Traffic Manager\nfor DNS level failover\n$6 per month for uptime\nBest ROI service in the stack]
+    end
+
+    subgraph OUTCOME ["Result of These Decisions"]
+        OUT1[Total cost $322 per month\nvs $2782 original design]
+        OUT2[88 percent cost reduction\n$29520 saved per year]
+        OUT3[Same 99.9% uptime SLA]
+        OUT4[Same MFA enforcement]
+        OUT5[Same 40K MAU capacity]
+        OUT6[Scales to 100K MAU\nwith zero plan change]
+        OUT1 & OUT2 & OUT3 & OUT4 & OUT5 & OUT6 --> WINNER[Best value\nEnterprise SSO\nfor Insurance]
+    end
+
+    PROBLEM --> CONSTRAINTS --> DECISIONS --> OUTCOME
+
+    style PROBLEM fill:#fee2e2,stroke:#dc2626
+    style CONSTRAINTS fill:#fef3c7,stroke:#ca8a04
+    style DECISIONS fill:#dbeafe,stroke:#1a56db
+    style OUTCOME fill:#dcfce7,stroke:#16a34a
+    style WINNER fill:#16a34a,color:#fff
+```
+
+## 16. Auth0 vs Azure Services — Who Does What
+
+```mermaid
+flowchart LR
+    subgraph AUTH0_DOES ["Auth0 Handles — Identity Layer"]
+        A1[Password hashing\nand storage]
+        A2[Login page UI\nand branding]
+        A3[MFA challenge\nand validation]
+        A4[Token signing\nwith RS256]
+        A5[Brute force\nprotection]
+        A6[Anomaly\ndetection]
+        A7[User profile\nstorage]
+        A8[Role and\npermission storage]
+        A9[SAML and OIDC\nfederation]
+        A10[Audit log\ngeneration]
+    end
+
+    subgraph AZURE_DOES ["Azure Handles — Infrastructure Layer"]
+        AZ1[Route traffic\nTraffic Manager]
+        AZ2[Block attacks\nat edge\nFront Door WAF]
+        AZ3[Store secrets\nKey Vault]
+        AZ4[Cache JWKS keys\nRedis Cache]
+        AZ5[Host Management API\nApp Service]
+        AZ6[Collect and query\naudit logs\nLog Analytics]
+        AZ7[Send alerts\non anomalies\nAzure Monitor]
+        AZ8[Manage custom\nlogin domain\nAzure DNS]
+    end
+
+    subgraph YOU_DO ["Your SSO Team Builds"]
+        Y1[Auth0 Actions\n3 JavaScript functions]
+        Y2[SSO Management API\nUser and role operations]
+        Y3[JWKS Validator Package\nShared to all teams]
+        Y4[Terraform IaC\nAll infrastructure as code]
+        Y5[Monitoring dashboards\nand alert rules]
+    end
+
+    AUTH0_DOES -- Secured by --> AZURE_DOES
+    AZURE_DOES -- Extended by --> YOU_DO
+
+    style AUTH0_DOES fill:#dcfce7,stroke:#16a34a
+    style AZURE_DOES fill:#dbeafe,stroke:#1a56db
+    style YOU_DO fill:#ede9fe,stroke:#7c3aed
+```
