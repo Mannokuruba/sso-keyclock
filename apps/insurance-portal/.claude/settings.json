@@ -10,7 +10,42 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080)",
       "Bash(docker info:*)",
       "Bash(docker compose:*)",
-      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('realm:', d.get\\('realm'\\)\\); print\\('clients:', [c['clientId'] for c in d.get\\('clients',[]\\) if not c.get\\('clientId',''\\).startswith\\('realm-'\\) and not c.get\\('clientId',''\\).startswith\\('broker'\\)]\\)\")"
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('realm:', d.get\\('realm'\\)\\); print\\('clients:', [c['clientId'] for c in d.get\\('clients',[]\\) if not c.get\\('clientId',''\\).startswith\\('realm-'\\) and not c.get\\('clientId',''\\).startswith\\('broker'\\)]\\)\")",
+      "Bash(curl -s http://localhost:8080/health/ready)",
+      "Bash(curl -s http://localhost:8080/)",
+      "Bash(node scripts/seed-keycloak-users.js)",
+      "Bash(node scripts/migrate-to-auth0.js)",
+      "Bash(node -e ':*)",
+      "Bash(AUTH0_MGMT_TOKEN=\"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik1XNXI3VzhvdEJab0xMTEFrMDJQMSJ9.eyJpc3MiOiJodHRwczovL2Rldi1sbWV6djZ1Y2RydGp1M2MxLmpwLmF1dGgwLmNvbS8iLCJzdWIiOiIxdVMyM2IzbTQ0ZGlzc3RWUEVKNTA2M1l6WVBiSnptcEBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9kZXYtbG1lenY2dWNkcnRqdTNjMS5qcC5hdXRoMC5jb20vYXBpL3YyLyIsImlhdCI6MTc3NjE0NzA3NywiZXhwIjoxNzc2MjMzNDc3LCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJhenAiOiIxdVMyM2IzbTQ0ZGlzc3RWUEVKNTA2M1l6WVBiSnptcCJ9.hdtLGPM5XBCkUAgSZq62OvUlwQYQV2MhJeZeUzEijF9cv_Ixd6S1XINnvws4AXCaRcMpmQhETteCNS-D0PFWGXqSKOyQjPuq3oC_pwT5IfNHqH1q0nvkheTqdnbXTN4lEbrBc-CVuvjqQrguwTIhVMr20A_O8be26-hsetWbsBV9L_YH5IoxHJczjt5zEXkIb7lZ63cZwPkfDGe97ZpCN0tfF12m81uQxyxjB2SN3JitC1scjTzNHN5a5rkEA7qs5pzvKs8LEzTggFMONMyDvJFIDc7tpAX0PZ742DJP7HH28sRye0523pU3IwJhjHyN9QhkUT_ti2lwC_1aFNEYdQ\" AUTH0_CONNECTION=\"Username-Password-Authentication\" node scripts/migrate-one-user.js user001)",
+      "Bash(node -e \"console.log\\(require\\('/tmp/auth0_token.json'\\).access_token\\)\")",
+      "Bash(curl -s https://dev-lmezv6ucdrtju3c1.jp.auth0.com/api/v2/jobs/job_oMeWz2WKt0fvst4F/errors -H 'Authorization: Bearer __TRACKED_VAR__')",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\); console.log\\(JSON.stringify\\(JSON.parse\\(d\\),null,2\\)\\)\")",
+      "Bash(curl -s --request PATCH https://dev-lmezv6ucdrtju3c1.jp.auth0.com/api/v2/users/auth0%7C69ddd7564144c30cfd9142b4 -H 'Authorization: Bearer __TRACKED_VAR__' -H 'Content-Type: application/json' -d '{:*)",
+      "Bash(ngrok version:*)",
+      "Bash(ngrok http:*)",
+      "Bash(curl -s http://localhost:4040/api/tunnels)",
+      "Bash(curl -s --request POST https://dev-lmezv6ucdrtju3c1.jp.auth0.com/api/v2/tickets/password-change -H 'Authorization: Bearer __TRACKED_VAR__' -H 'Content-Type: application/json' -d '{:*)",
+      "Bash(curl -s https://dev-lmezv6ucdrtju3c1.jp.auth0.com/api/v2/users/auth0%7C69dddec7e8193a609f932ff2 -H 'Authorization: Bearer __TRACKED_VAR__')",
+      "Bash(curl -s https://dev-lmezv6ucdrtju3c1.jp.auth0.com/api/v2/clients/zRPjBIhXTJsKj1Chd57KZ1pCaVMkLZCi -H 'Authorization: Bearer __TRACKED_VAR__')",
+      "Bash(curl -s https://dev-lmezv6ucdrtju3c1.jp.auth0.com/api/v2/connections/con_91HfKNYP1cT6iAUY -H 'Authorization: Bearer __TRACKED_VAR__')",
+      "Bash(curl -s --request POST https://dev-lmezv6ucdrtju3c1.jp.auth0.com/api/v2/connections/con_91HfKNYP1cT6iAUY/clients/zRPjBIhXTJsKj1Chd57KZ1pCaVMkLZCi -H 'Authorization: Bearer __TRACKED_VAR__' -H 'Content-Type: application/json')",
+      "Bash(curl -s --request PATCH https://dev-lmezv6ucdrtju3c1.jp.auth0.com/api/v2/users/auth0%7C69dddec7e8193a609f932ff2 -H 'Authorization: Bearer __TRACKED_VAR__' -H 'Content-Type: application/json' -d '{:*)",
+      "Bash(jobs -l)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' https://8268ed5d34f557.lhr.life/realms/insurance)",
+      "Bash(python3 -c \"import json,sys,time; d=json.load\\(sys.stdin\\); exp=d.get\\('expires_at',0\\); print\\('Token expires:', time.strftime\\('%H:%M:%S', time.localtime\\(exp\\)\\), '| Valid:', exp > time.time\\(\\)\\)\")",
+      "Bash(python3 -m json.tool)",
+      "Read(//Users/manojkumar/**)",
+      "Read(//temp/readonly/**)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://8268ed5d34f557.lhr.life/realms/insurance\" --max-time 10)",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\); const r=JSON.parse\\(d\\); if\\(r.access_token\\){const p=JSON.parse\\(Buffer.from\\(r.access_token.split\\('.'\\)[1],'base64'\\).toString\\(\\)\\); console.log\\('✅ ROPC works! User:', p.preferred_username, '| Email:', p.email\\)}else{console.log\\('❌', JSON.stringify\\(r\\)\\)}\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://4245b216fe6e91.lhr.life/realms/insurance\" --max-time 10)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://4245b216fe6e91.lhr.life/realms/insurance\" --max-time 5)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://localhost:3010 --max-time 5 -k)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3010 --max-time 5)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://3f320b4126c246.lhr.life/realms/insurance\" --max-time 8)",
+      "Bash(node -e \"const d=JSON.parse\\(require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\)\\); console.log\\(d.access_token ? '✅ OK' : '❌ '+d.error_description\\)\")",
+      "Bash(pkill -f \"npm run dev\")",
+      "Bash(pkill -f \"node.*vite\" sleep 1)"
     ],
     "additionalDirectories": [
       "/Users/manojkumar/sso-local/apps/insurance-portal/mermaid",
@@ -18,7 +53,8 @@
       "/Users/manojkumar/sso-local/keycloak/realms",
       "/Users/manojkumar/sso-local/apps/insurance-portal-kc",
       "/Users/manojkumar/sso-local/nginx",
-      "/Users/manojkumar/sso-local"
+      "/Users/manojkumar/sso-local",
+      "/Users/manojkumar/.claude/projects/-Users-manojkumar-sso-local-apps-insurance-portal/memory"
     ]
   }
 }
