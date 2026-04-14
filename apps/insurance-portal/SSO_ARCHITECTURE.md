@@ -473,10 +473,154 @@ flowchart LR
 
 ## 12. What Is Auth0 and What Does It Do
 
-```mermaid
-flowchart TD
-    subgraph WHAT ["What Auth0 Is"]
-        W1[Auth0 is an Identity as a Service\nIDaaS platform]
+Auth0 is an **Identity as a Service (IDaaS)** platform — a cloud-hosted service that handles everything related to user login so your engineering team does not have to build it from scratch. It is used by 18,000+ companies worldwide including banks, insurance firms, and hospitals.
+
+### What Auth0 Does for InsureConnect
+
+| Responsibility | What Happens |
+|---|---|
+| **Hosts the Login Page** | Your app never handles passwords — users log in on Auth0's page |
+| **Verifies Email + Password** | Auth0 checks credentials using bcrypt hashing internally |
+| **Challenges MFA** | OTP via Google Authenticator or Authy, enforced every login |
+| **Issues JWT Tokens** | Signed with RS256 private key — ID Token, Access Token, Refresh Token |
+| **Manages User Accounts** | Stores 40K customer identities, profiles, and roles |
+| **Enforces MFA Policy** | Always-on policy meets NAIC insurance compliance requirements |
+| **Detects Attacks** | Brute force blocking after 10 attempts, impossible travel detection |
+| **Streams Audit Logs** | Every login, MFA event, and role change is logged |
+
+### Without Auth0 — What Your Team Would Have to Build
+
+Your team would need to build and maintain: a secure login page UI, password hashing and storage, MFA OTP generation and validation, JWT token signing and rotation, brute force protection, session management, forgot password flows, anomaly detection, compliance audit logging, and continuous security patching. Estimated effort: **12 to 18 months** of engineering work, plus ongoing maintenance forever.
+
+### With Auth0 — What Your Team Does Instead
+
+Configure settings in the Auth0 dashboard, write 3 Auth0 Actions in JavaScript to inject claims, build one SSO Management API for user provisioning, and focus the rest of engineering time on shipping insurance features for customers. **Ready in 4 to 6 weeks, not 18 months.**
+
+---
+
+## 13. Why Auth0 Over Other Options
+
+Five identity provider options were evaluated against the project requirements (40K MAU B2C, MFA always-on, custom login branding, RBAC roles, audit logging, fast deployment, vendor neutrality).
+
+### Build In-House — Rejected
+12 to 18 months build time minimum. High security risk during development. Requires permanent team to maintain and patch. Every new compliance requirement means new engineering work. Not viable for a small SSO team with a delivery deadline.
+
+### AWS Cognito — Rejected
+Limited MFA options compared to Auth0. Tightly coupled to AWS — moving off AWS later becomes very difficult. Weak support for custom login page branding. B2C user flows are less mature than Auth0's.
+
+### Keycloak (Open Source) — Rejected
+Free software but not free to run. Your team must host, upgrade, patch, and operate the Keycloak cluster. This shifts significant operational burden onto the SSO team. At 40K MAU the infrastructure and ops overhead erodes the cost saving advantage.
+
+### Microsoft Entra ID B2C — Rejected
+Complex and unpredictable pricing model. Tightly coupled to Azure — limits future infrastructure flexibility. Custom authentication flows require more configuration effort. Not cloud-agnostic.
+
+### Auth0 Professional — Selected ✅
+All requirements met out of the box. 6-week deployment timeline is achievable. Cloud-agnostic — works on Azure, AWS, GCP, or on-premises. $240/mo covers up to 100K MAU (2.5x headroom over current 40K). Strong MFA, RBAC, and audit logging built in. Universal Login handles branding. Actions enable custom claim injection without infrastructure.
+
+---
+
+## 14. Why Each Azure Service — Purpose and Justification
+
+### Azure Traffic Manager — $6/mo
+**What it does:** Routes DNS traffic using health checks. If one endpoint becomes unhealthy it automatically reroutes to the next healthy endpoint in under 30 seconds.
+
+**Why we need it:** Auth0 is already multi-AZ internally, but the SPA and Management API hosted on Azure App Service are not. Traffic Manager provides DNS-level failover for those services. For a customer-facing insurance portal where downtime means users cannot access their policy documents, 30-second DNS failover is the minimum acceptable recovery time.
+
+**Without it:** If the App Service region goes down, customers get connection errors until someone manually updates DNS records — which can take hours and requires on-call engineering intervention.
+
+---
+
+### Azure Front Door Standard — $35/mo
+**What it does:** Global CDN with built-in WAF (Web Application Firewall), SSL termination, and edge-level DDoS protection.
+
+**Why we need it:** The login endpoint is the most attacked surface in any application. Front Door WAF blocks OWASP Top 10 attacks — SQL injection, XSS, path traversal — before requests ever reach Auth0 or the SPA. It also serves the SPA's static assets from edge nodes globally, reducing latency for all 40K users.
+
+**Why not Azure DDoS Standard:** Front Door WAF already covers DDoS mitigation at the edge. Azure DDoS Standard costs an additional $95/mo for protection that is already included in Front Door. It was removed to avoid paying twice for the same capability.
+
+---
+
+### Azure Key Vault — $5/mo
+**What it does:** Encrypted, access-controlled secret storage for credentials, API keys, and certificates.
+
+**Why we need it:** Auth0 Client ID, Client Secret, and any signing certificates must never be stored in code, environment files, or repositories. Key Vault ensures secrets are fetched at runtime by the Management API and rotated without redeployment.
+
+**Risk without it:** One accidental git commit of a `.env` file with secrets would expose all 40K customer accounts. Key Vault eliminates this entire class of risk.
+
+---
+
+### Azure Redis Cache C0 — $16/mo
+**What it does:** In-memory key-value cache shared across all service instances.
+
+**Why we need it:** Every API request from backend services validates the JWT token by fetching Auth0's JWKS (public key set). Without caching, every single API call makes an outbound HTTP request to Auth0. At 40K MAU this creates thousands of requests per hour to Auth0's JWKS endpoint, which triggers rate limiting and adds latency to every API response.
+
+**With Redis:** The JWKS keys are fetched once and cached for 24 hours. Token validation becomes a local memory lookup — sub-millisecond, no rate limit risk.
+
+---
+
+### Azure App Service B1 — $14/mo
+**What it does:** Managed hosting for the SSO Management API — the Node.js service your team builds to expose user provisioning, role assignment, and MFA reset operations to other internal teams.
+
+**Why B1 and not a larger tier:** The SSO Management API is an internal service. Other engineering teams call it to create users, assign roles, or reset MFA — not customer traffic. Traffic volume is under 1,000 calls per day. B1 (1 vCPU, 1.75GB RAM) handles this comfortably. Upgrading to Standard S1 ($73/mo) would triple the cost for no benefit at this traffic level.
+
+---
+
+### Azure Log Analytics — $0–5/mo
+**What it does:** Collects, stores, and makes queryable all Auth0 tenant logs streamed via Auth0 Log Streaming.
+
+**Why we need it:** NAIC insurance regulations require a minimum 90-day audit trail of all authentication events — logins, MFA challenges, role changes, failed attempts, and logouts. Log Analytics provides a searchable, tamper-evident log store with alerting via Azure Monitor.
+
+**Why almost free:** Log Analytics pricing is based on data volume. The first 5GB per day is free. Auth0 logs for 40K MAU (roughly login events, MFA events, and admin actions) generate well under 1GB per day. The monthly cost stays in the $0–5 range.
+
+---
+
+### Azure DNS — $1/mo
+**What it does:** Manages the custom domain `login.company.com` and routes it to Auth0's custom domain configuration.
+
+**Why we need it:** Insurance customers must see your company's brand in the login URL, not `auth0.com`. Trust is critical in financial services — an unfamiliar domain in the browser bar during login increases abandonment and support calls. Azure DNS manages the CNAME record that points `login.company.com` to Auth0's custom domain endpoint.
+
+**Future benefit:** If the company ever migrates away from Auth0, the custom domain stays the same. Customers never notice the change. The `auth0.com` domain is never exposed to end users.
+
+---
+
+## 15. Why This Architecture Was Selected
+
+### The Business Problem
+40,000 insurance customers need secure, reliable login to access their policy documents, claims, and account details. Downtime means customers cannot access their own financial data — a direct regulatory and reputational risk. MFA is required by NAIC insurance compliance standards. The SSO team is small and needs to deliver quickly.
+
+### The Constraints
+The team cannot afford 18 months of custom auth development. A security breach in the auth layer would be catastrophic for an insurance firm. The company wants to avoid deep lock-in to a single cloud provider. The solution must scale from 40K to 500K MAU without major rearchitecting.
+
+### The Key Decisions and Why
+
+**Auth0 Professional over Enterprise:** The Professional plan covers 100K MAU — 2.5x the current user base. Enterprise adds features like private cloud deployment and SLAs above 99.9%, which are not needed at 40K MAU. This decision saves $960 to $2,260 per month.
+
+**Single Auth0 tenant over dual-tenant standby:** Auth0 is already deployed across multiple availability zones internally. Adding a second "standby" tenant would cost an additional $240/mo minimum and create sync complexity. Auth0's built-in HA already provides 99.9% uptime. The money saved goes into Traffic Manager and Front Door instead — which protect the Azure-hosted components that are *not* multi-AZ by default.
+
+**Azure Front Door over Azure DDoS Standard:** Front Door Standard includes WAF and edge DDoS protection. Azure DDoS Standard would add $95/mo for capabilities already covered. Removed entirely.
+
+**App Service B1 over Standard S1:** The Management API is internal low-traffic. B1 is sufficient. Saves $36/mo with no performance impact.
+
+**Log Analytics free tier:** Auth0 logs for 40K MAU fit within the 5GB/day free allowance. Saves $20/mo versus a paid Log Analytics workspace.
+
+### The Result
+Total monthly cost: **$322/mo** versus the original design at **$2,782/mo**. That is an **88% cost reduction** — $29,520 saved per year — with identical uptime SLA, identical MFA enforcement, identical capacity for 40K MAU, and room to scale to 100K MAU with zero plan changes.
+
+---
+
+## 16. Auth0 vs Azure Services — Who Does What
+
+### Auth0 Is Responsible For (Identity Layer)
+Auth0 owns everything related to *who the user is* and *whether they are who they claim to be*: password hashing and storage, the login page UI and branding, MFA OTP challenge and validation, JWT token signing with RS256, brute force protection, anomaly and impossible-travel detection, user profile storage, role and permission storage, SAML and OIDC federation, and generating the audit log events.
+
+### Azure Is Responsible For (Infrastructure Layer)
+Azure owns everything related to *how traffic reaches the identity layer* and *how the supporting services run*: routing traffic with health-based failover (Traffic Manager), blocking attacks at the edge before they reach Auth0 (Front Door WAF), storing secrets so they never appear in code (Key Vault), caching JWKS public keys so token validation is fast and does not hit Auth0 on every API call (Redis), hosting the SSO Management API that exposes user provisioning to other teams (App Service), collecting and querying all audit log events for compliance (Log Analytics), sending alerts when anomalies appear in the logs (Azure Monitor), and managing the custom login domain (Azure DNS).
+
+### Your SSO Team Builds (Extension Layer)
+The SSO team's code sits between Auth0 and the consuming applications: three Auth0 Actions written in JavaScript (post-login claim injection, pre-registration validation, post-registration welcome email trigger), the SSO Management API (a Node.js service that wraps Auth0 Management API so other teams can create users and assign roles without direct Auth0 access), a shared JWKS Validator npm package distributed to all backend teams so they validate tokens consistently, Terraform infrastructure-as-code for all Azure resources, and the monitoring dashboards and alert rules in Azure Monitor.
+
+Auth0 handles identity. Azure handles infrastructure. Your team handles the glue between them and the features on top.
+
+---
         W2[It is a cloud-hosted service that\nhandles everything about login\nso your team does not have to build it]
         W3[Used by 18000 plus companies\nworldwide including banks\ninsurance firms and hospitals]
         W1 --> W2 --> W3

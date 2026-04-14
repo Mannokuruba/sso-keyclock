@@ -1,0 +1,91 @@
+{
+  "realm": "insurance",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+
+  "roles": {
+    "realm": [
+      { "name": "customer",    "description": "Insurance portal customer" },
+      { "name": "agent",       "description": "Insurance agent" },
+      { "name": "admin",       "description": "Portal administrator" }
+    ]
+  },
+
+  "clients": [
+    {
+      "clientId": "insurance-portal",
+      "name": "InsureConnect Portal",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "redirectUris": [
+        "http://localhost:3020/*",
+        "http://localhost:3020"
+      ],
+      "webOrigins": [
+        "http://localhost:3020"
+      ],
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    }
+  ],
+
+  "users": [
+    {
+      "username": "customer1",
+      "enabled": true,
+      "email": "customer1@insureconnect.com",
+      "firstName": "Alex",
+      "lastName": "Johnson",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Password1!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["customer"]
+    },
+    {
+      "username": "agent1",
+      "enabled": true,
+      "email": "agent1@insureconnect.com",
+      "firstName": "Sarah",
+      "lastName": "Agent",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Password1!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["agent"]
+    }
+  ]
+}
