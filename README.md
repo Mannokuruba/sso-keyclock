@@ -29,18 +29,20 @@ git checkout main
 ```
 sso-local/
 │
-├── apps/
-│   ├── insurance-portal/        ← AUTH0 version of InsureConnect
-│   │   └── src/auth0-config.js     Auth0 domain, clientId, PKCE
-│   │
-│   └── insurance-portal-kc/     ← KEYCLOAK version of InsureConnect
-│       └── src/keycloak-config.js  Keycloak URL, realm, clientId
+├── auth0/                            ← EVERYTHING AUTH0
+│   ├── app/insurance-portal/         ← Auth0 React SPA
+│   │   └── src/auth0-config.js          domain, clientId, PKCE, scopes
+│   └── scripts/
+│       ├── auth0-custom-db-login.js  ← Paste into Auth0 Custom DB Login script
+│       ├── seed-keycloak-users.js    ← Create 100 test users in Keycloak
+│       ├── migrate-to-auth0.js       ← Bulk export Keycloak → Auth0
+│       └── migrate-one-user.js       ← Migrate a single user by email/username
 │
-├── scripts/
-│   ├── seed-keycloak-users.js   ← Create 100 test users in Keycloak
-│   ├── migrate-to-auth0.js      ← Bulk export Keycloak → Auth0
-│   ├── migrate-one-user.js      ← Migrate a single user by email/username
-│   └── auth0-custom-db-login.js ← Paste this into Auth0 Custom DB connection
+├── keycloak/                         ← EVERYTHING KEYCLOAK
+│   ├── app/insurance-portal-kc/      ← Keycloak React SPA
+│   │   └── src/keycloak-config.js       Keycloak URL, realm, clientId
+│   └── realms/
+│       └── insurance-realm.json      ← Realm config (auto-imported on startup)
 │
 ├── docs/
 │   └── migration/
@@ -52,9 +54,8 @@ sso-local/
 │       ├── 06-decision-guide.md
 │       └── 07-keycloak-to-auth0-operational-guide.md  ← START HERE
 │
-├── keycloak/realms/             ← Keycloak realm config (auto-imported)
-├── nginx/                       ← nginx reverse proxy config
-└── docker-compose.yml           ← Runs Keycloak + nginx together
+├── nginx/                            ← nginx reverse proxy config
+└── docker-compose.yml                ← Runs Keycloak + nginx together
 ```
 
 ---
@@ -63,14 +64,14 @@ sso-local/
 
 ### Run the Auth0 portal
 ```bash
-cd apps/insurance-portal
+cd auth0/app/insurance-portal
 npm run dev
 # Opens at https://localhost:3010
 ```
 
 ### Run the Keycloak portal
 ```bash
-cd apps/insurance-portal-kc
+cd keycloak/app/insurance-portal-kc
 npm run dev
 # Opens at http://localhost:3020
 ```
